@@ -1,11 +1,10 @@
-
 import requests
 import os
 from datetime import datetime, timedelta
 import pytz
 import pandas as pd
 
-# Carrega as variáveis diretamente do ambiente (usadas como GitHub Secrets)
+# Lê os tokens diretamente das variáveis de ambiente (use GitHub Secrets)
 APP_KEY = os.getenv("RUNRUN_APP_KEY")
 USER_TOKEN = os.getenv("RUNRUN_USER_TOKEN")
 BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
@@ -59,9 +58,10 @@ def filter_yesterday_comments(comments):
             continue
     return filtered
 
-def export_to_excel(data, file_path="comentarios_diarios.xlsx"):
+def export_to_csv(data, file_path="comentarios_diarios.csv"):
     df = pd.DataFrame(data)
-    df.to_excel(file_path, index=False)
+    df.to_csv(file_path, index=False, encoding="utf-8-sig")
+    print("Tamanho do arquivo:", os.path.getsize(file_path) / (1024 * 1024), "MB")
     return file_path
 
 def send_file_to_telegram(file_path):
@@ -76,8 +76,8 @@ def main():
     filtered = filter_yesterday_comments(comments)
     print(f"Total de comentários do dia anterior: {len(filtered)}")
     if filtered:
-        excel_path = export_to_excel(filtered)
-        send_file_to_telegram(excel_path)
+        csv_path = export_to_csv(filtered)
+        send_file_to_telegram(csv_path)
     else:
         print("Nenhum comentário para o dia anterior.")
 
